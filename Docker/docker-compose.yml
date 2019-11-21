@@ -1,0 +1,55 @@
+version: '3.5'
+
+services:
+  myapplication-app:
+    build:
+      context: '.'
+      args:
+        uid: ${UID}
+    container_name: myapplication
+    environment:
+      - APACHE_RUN_USER=#${UID}
+      - APACHE_RUN_GROUP=#${UID}
+    volumes:
+      - ./..:/var/www/html
+    ports:
+      # change 8000 if you have several projects
+      - 8000:80  
+    networks:
+      backend:
+        aliases:
+          - myapplication-app
+
+  myapplication-mysql:
+    image: mysql:latest
+    container_name: myapplication-mysql
+    volumes:
+      - ./run/var:/var/lib/mysql
+      - ./run/dump/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=securerootpassword
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    networks:
+      backend:
+        aliases:
+          - db
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - myapplication-mysql
+    environment:
+      PMA_HOST: myapplication-mysql
+      PMA_PORT: 3306
+    ports:
+      # change 8080 port to non conflicting one if you have several projects
+      - '8080:80'
+    networks:
+      backend:
+        aliases:
+          - phpmyadmin
+
+networks:
+  backend:
+    name: backend-network
