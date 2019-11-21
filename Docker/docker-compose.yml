@@ -1,11 +1,13 @@
 version: '3.5'
 
 services:
+  # Choose appropriate name
   myapplication-app:
     build:
       context: '.'
       args:
         uid: ${UID}
+    # Choose appropriate name
     container_name: myapplication
     environment:
       - APACHE_RUN_USER=#${UID}
@@ -18,10 +20,13 @@ services:
     networks:
       backend:
         aliases:
+          # rename appropriately
           - myapplication-app
 
+  # choose appropriate name
   myapplication-mysql:
     image: mysql:latest
+    # rename appropriately
     container_name: myapplication-mysql
     volumes:
       - ./run/var:/var/lib/mysql
@@ -38,6 +43,7 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     links:
+      # rename appropriately
       - myapplication-mysql
     environment:
       PMA_HOST: myapplication-mysql
